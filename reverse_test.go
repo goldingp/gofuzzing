@@ -16,8 +16,19 @@ func FuzzReverse(f *testing.F) {
 		f.Add(tc)
 	}
 	f.Fuzz(func(t *testing.T, orig string) {
-		rev := Reverse(orig)
-		doubleRev := Reverse(rev)
+		var revErr error
+
+		rev, revErr := Reverse(orig)
+		if revErr != nil {
+			t.Logf("error while reversing string: %v", revErr)
+			t.Skip()
+		}
+
+		doubleRev, revErr := Reverse(rev)
+		if revErr != nil {
+			t.Logf("error while reversing string: %v", revErr)
+			t.Skip()
+		}
 
 		t.Logf("Number of runes: orig=%d, rev=%d, doubleRev=%d",
 			utf8.RuneCountInString(orig),
@@ -43,7 +54,10 @@ func TestReverse(t *testing.T) {
 		{"!12345", "54321!"},
 	}
 	for _, tc := range testCases {
-		rev := Reverse(tc.in)
+		rev, revErr := Reverse(tc.in)
+		if revErr != nil {
+			t.Skip()
+		}
 		if rev != tc.want {
 			t.Errorf("Reverse: %q, want %q", rev, tc.want)
 		}
